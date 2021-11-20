@@ -46,12 +46,16 @@ class Visualizer(object):
         for k, trans in transformations.items():
             if axes:
                 pos, rot = quat_pos_from_transform3d(trans)
+                pos = pos.detach().numpy()
+                rot = rot.detach().numpy()
                 tf = transform.Transform(rot[0], pos[0])
 
                 self.add_axes(tf)
             for v in visuals_map[k]:
                 tfo = trans.compose(v.offset)
                 pos, rot = quat_pos_from_transform3d(tfo)
+                pos = pos.detach().numpy()
+                rot = rot.detach().numpy()
                 tf = transform.Transform(rot[0], pos[0])
 
                 # tf = trans * v.offset
