@@ -4,19 +4,19 @@ import os, sys
 import numpy as np
 
 # import transformations as tf
-import pytorch_kinematics.transforms as tf
+import pytorch_kinematics.pytorch3d.transforms as tf
 import vtk
 from vtk.util.colors import tomato
 
-from pytorch_kinematics import frame, transforms
+from pytorch_kinematics import frame  # , transforms
 import pytorch_kinematics as pk
 
 # for euler_from_quaternion:
 import transformations as tf2
 
 # use kinpy Transform to construct Visualizer:
-sys.path.append(os.path.join(os.environ["HOME"], "stash/kinpy/kinpy"))
-import transform
+# sys.path.append(os.path.join(os.environ["HOME"], "stash/kinpy/kinpy"))
+from .kinpy_utils import transform
 
 
 def quat_pos_from_transform3d(tg):

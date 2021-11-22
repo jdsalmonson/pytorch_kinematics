@@ -1,5 +1,10 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All rights reserved.
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
 
+from .math import acos_linear_extrapolation
 from .rotation_conversions import (
     axis_angle_to_matrix,
     axis_angle_to_quaternion,
@@ -11,6 +16,7 @@ from .rotation_conversions import (
     quaternion_invert,
     quaternion_multiply,
     quaternion_raw_multiply,
+    quaternion_to_axis_angle,
     quaternion_to_matrix,
     random_quaternions,
     random_rotation,
@@ -18,8 +24,11 @@ from .rotation_conversions import (
     rotation_6d_to_matrix,
     standardize_quaternion,
 )
+
+# from .se3 import se3_exp_map, se3_log_map
 from .so3 import (
     so3_exp_map,
+    so3_exponential_map,
     so3_log_map,
     so3_relative_angle,
     so3_rotation_angle,
