@@ -1,4 +1,4 @@
-import pytorch_kinematics.transforms as tf
+import pytorch_kinematics.pytorch3d.transforms as tf
 import torch
 
 
