@@ -52,7 +52,6 @@ def test_rotate_axis_angle():
     normals = torch.tensor([[1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0]]).view(
         1, 3, 3
     )
-    breakpoint()
     points_out = t.transform_points(points)
     normals_out = t.transform_normals(normals)
     points_out_expected = torch.tensor(

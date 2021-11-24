@@ -13,8 +13,12 @@ import torch
 
 from ..common.types import Device, get_device, make_device
 from ..common.workaround import _safe_det_3x3
-from .rotation_conversions import _axis_angle_rotation, matrix_to_quaternion, quaternion_to_matrix, \
-    euler_angles_to_matrix
+from .rotation_conversions import (
+    _axis_angle_rotation,
+    matrix_to_quaternion,
+    quaternion_to_matrix,
+    euler_angles_to_matrix,
+)
 
 DEFAULT_EULER_CONVENTION = "XYZ"
 
@@ -149,11 +153,11 @@ class Transform3d:
 
     def __init__(
         self,
-	default_batch_size=1,
+        default_batch_size=1,
         dtype: torch.dtype = torch.float32,
         device: Device = "cpu",
         matrix: Optional[torch.Tensor] = None,
-	rot: Optional[typing.Iterable] = None,
+        rot: Optional[typing.Iterable] = None,
         pos: Optional[typing.Iterable] = None,
     ) -> None:
         """
@@ -179,7 +183,9 @@ class Transform3d:
         """
 
         if matrix is None:
-            self._matrix = torch.eye(4, dtype=dtype, device=device).view(default_batch_size, 4, 4)
+            self._matrix = torch.eye(4, dtype=dtype, device=device).view(
+                default_batch_size, 4, 4
+            )
         else:
             if matrix.ndim not in (2, 3):
                 raise ValueError('"matrix" has to be a 2- or a 3-dimensional tensor.')
@@ -222,7 +228,7 @@ class Transform3d:
         m = self.get_matrix()
         pos = m[:, :3, 3]
         rot = matrix_to_quaternion(m[:, :3, :3])
-        return "Transform3d(rot={}, pos={})".format(rot, pos).replace('\n       ', '')
+        return "Transform3d(rot={}, pos={})".format(rot, pos).replace("\n       ", "")
 
     def __getitem__(
         self, index: Union[int, List[int], slice, torch.Tensor]
@@ -672,7 +678,7 @@ class RotateAxisAngle(Rotate):
         # are row vectors. The rotation matrix returned from _axis_angle_rotation
         # is for transforming column vectors. Therefore we transpose this matrix.
         # R will always be of shape (N, 3, 3)
-        R = _axis_angle_rotation(axis, angle).transpose(1, 2)
+        R = _axis_angle_rotation(axis, angle)
         super().__init__(device=angle.device, R=R)
 
 
