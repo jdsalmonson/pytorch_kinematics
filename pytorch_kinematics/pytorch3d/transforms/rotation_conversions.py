@@ -40,6 +40,14 @@ e.g.
     transformed_points = points * R.transpose(1, 0)
 """
 
+def xyzw_to_wxyz(quaternions):
+    return torch.cat([quaternions[..., None, -1], quaternions[..., :3]], dim=-1)
+
+
+def wxyz_to_xyzw(quaternions):
+    return torch.cat([quaternions[..., 1:], quaternions[..., None, 0]], dim=-1)
+
+
 
 def quaternion_to_matrix(quaternions: torch.Tensor) -> torch.Tensor:
     """
