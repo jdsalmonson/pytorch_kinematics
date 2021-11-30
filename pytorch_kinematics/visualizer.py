@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional, Union
 import os, sys
 
 import numpy as np
@@ -38,12 +38,19 @@ class Visualizer(object):
 
     def add_robot(
         self,
-        transformations: Dict[str, np.ndarray],
+        transformations: Union[Dict[str, np.ndarray], List[Dict[str, np.ndarray]]],
         visuals_map: Dict[str, frame.Visual],
         mesh_file_path: str = "./",
         axes: bool = False,
     ) -> None:
-        for k, trans in transformations.items():
+        if isinstance(transformations, dict):
+            transformations = [transformations]
+        self.transform_idx = 0
+        self.transformations = transformations
+        self.visuals_map = visuals_map
+        self.axes = axes
+
+        for k, trans in transformations[0].items():
             if axes:
                 pos, rot = quat_pos_from_transform3d(trans)
                 pos = pos.detach().numpy()
@@ -166,6 +173,64 @@ class Visualizer(object):
         else:
             raise ValueError("Unsupported file extension, '%s'." % ext)
         self.add_shape_source(reader, tf)
+
+    def update_robot_pose(
+        self,
+        index_step: int = 1,
+    ) -> None:
+        """Step thru list of forward kinetic transformation poses as provided to the
+        add_robot method.  It uses the same method of updating the pose as used during
+        setup: SetPosition and RotateX|Y|Z.  The axes are not updated.
+
+        Args:
+          index_step (int): distance to move along transformation list to next pose
+        """
+
+        self.transform_idx += index_step
+        self.transform_idx %= len(self.transformations)  # cycle thru list
+        print(f"Transform index: {self.transform_idx}")
+
+        next_transform = self.transformations[self.transform_idx]
+
+        link_names = list(self.visuals_map.keys())
+
+        actors = self._ren.GetActors()
+
+        actor_iterator = actors.NewIterator()
+        for indx, actor in enumerate(actor_iterator):
+            # If present, skip 6 axes actors per link:
+            if not self.axes or indx % 7 == 6:
+                l_indx = indx if not self.axes else int(indx / 7)
+                l_indx += 1
+
+                link_name = link_names[l_indx]
+
+                v = self.visuals_map[link_name][0]  # this assumes 1 visual per link
+                trans = next_transform[link_name]
+                tfo = trans.compose(v.offset)
+                pos, rot = quat_pos_from_transform3d(tfo)
+                pos = pos.detach().numpy()
+                rot = rot.detach().numpy()
+                tf = transform.Transform(rot[0], pos[0])
+
+                actor.SetPosition(tf.pos)
+
+                rpy = np.rad2deg(tf2.euler_from_quaternion(tf.rot, "rxyz"))
+                # Reset orientation, then rotate to new orientation:
+                actor.SetOrientation(0.0, 0.0, 0.0)
+                actor.RotateX(rpy[0])
+                actor.RotateY(rpy[1])
+                actor.RotateZ(rpy[2])
+
+        self._win.Render()
+
+    def key_press(self, obj, event):
+        key = obj.GetKeySym()
+
+        if key == "Up" or key == "Right":
+            self.update_robot_pose(-1)
+        elif key == "Down" or key == "Left":
+            self.update_robot_pose(1)
 
     def spin(self) -> None:
         self._win.Render()
